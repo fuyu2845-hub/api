@@ -80,6 +80,7 @@ router.post('/messages', apiKeyAuth, async (req, res) => {
           if (!line.startsWith('data: ')) continue;
           try {
             const parsed = JSON.parse(line.slice(6));
+            console.log('[Anthropic SSE] type:', parsed.type, 'usage:', JSON.stringify(parsed.message?.usage || parsed.usage));
             // message_start contains initial input token count
             if (parsed.type === 'message_start' && parsed.message?.usage) {
               const usage = parsed.message.usage;
@@ -88,10 +89,12 @@ router.post('/messages', apiKeyAuth, async (req, res) => {
                 (usage.cache_read_input_tokens || 0) +
                 (usage.cache_creation_input_tokens || 0);
               if (parsed.message.model) modelName = parsed.message.model;
+              console.log('[Anthropic] message_start - totalInputTokens:', totalInputTokens);
             }
             // message_delta contains output token count
             if (parsed.type === 'message_delta' && parsed.usage) {
               totalOutputTokens = parsed.usage.output_tokens || 0;
+              console.log('[Anthropic] message_delta - totalOutputTokens:', totalOutputTokens);
             }
           } catch {
             // Not valid JSON, skip
@@ -104,6 +107,7 @@ router.post('/messages', apiKeyAuth, async (req, res) => {
 
     res.end();
 
+    console.log('[Anthropic] Final - inputTokens:', totalInputTokens, 'outputTokens:', totalOutputTokens, 'model:', modelName);
     if (totalInputTokens > 0 || totalOutputTokens > 0) {
       recordUsage(
         apiKeyRecord.id,
