@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cdk {
+  id         String    @id @default(uuid())
+  code       String    @unique
+  quota      Float     // Total quota in currency units (e.g., USD)
+  expiryDays Int       // API key validity period after redemption
+  status     String    @default("active") // active, redeemed, disabled
+  note       String?
+  redeemedAt DateTime?
+  apiKeyId   String?
+  apiKey     ApiKey?   @relation(fields: [apiKeyId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status])
+}
+
+model ApiKey {
+  id         String     @id @default(uuid())
+  key        String     @unique
+  name       String?
+  quotaTotal Float
+  quotaUsed  Float      @default(0)
+  expiresAt  DateTime
+  status     String     @default("active") // active, disabled, expired
+  cdks       Cdk[]
+  usageLogs  UsageLog[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([key])
+  @@index([status])
+}
+
+model UsageLog {
+  id           String   @id @default(uuid())
+  apiKeyId     String
+  apiKey       ApiKey   @relation(fields: [apiKeyId], references: [id])
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  cost         Float
+  endpoint     String   // "openai" or "anthropic"
+  createdAt    DateTime @default(now())
+
+  @@index([apiKeyId])
+  @@index([createdAt])
+}
+
+model PricingRule {
+  id              String   @id @default(uuid())
+  modelPattern    String   @unique // Model name or "*" for default
+  inputPricePerM  Float    // Price per million input tokens
+  outputPricePerM Float    // Price per million output tokens
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

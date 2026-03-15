@@ -1,0 +1,27 @@
+{
+  "name": "cdk-gateway",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CDK Gateway - API key management and proxy service",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "build:client": "cd client && npm install && npm run build",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate deploy",
+    "prisma:push": "npx prisma db push",
+    "setup": "npm run prisma:generate && npm run build:client"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.0.9"
+  },
+  "devDependencies": {
+    "prisma": "^6.4.0"
+  }
+}
