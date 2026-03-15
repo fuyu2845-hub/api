@@ -35,11 +35,16 @@ router.post('/messages', apiKeyAuth, async (req, res) => {
       const data = await upstreamRes.json();
       if (data.usage) {
         const model = data.model || req.body.model || 'unknown';
+        const usage = data.usage;
+        // Sum all input tokens (including cache tokens)
+        const totalInput = (usage.input_tokens || 0) +
+          (usage.cache_read_input_tokens || 0) +
+          (usage.cache_creation_input_tokens || 0);
         recordUsage(
           apiKeyRecord.id,
           model,
-          data.usage.input_tokens || 0,
-          data.usage.output_tokens || 0,
+          totalInput,
+          usage.output_tokens || 0,
           'anthropic'
         ).catch((err) => console.error('Usage recording error:', err));
       }
@@ -75,9 +80,13 @@ router.post('/messages', apiKeyAuth, async (req, res) => {
           if (!line.startsWith('data: ')) continue;
           try {
             const parsed = JSON.parse(line.slice(6));
-            // message_start contains input token count
+            // message_start contains initial input token count
             if (parsed.type === 'message_start' && parsed.message?.usage) {
-              totalInputTokens = parsed.message.usage.input_tokens || 0;
+              const usage = parsed.message.usage;
+              // Sum all input tokens (including cache read tokens)
+              totalInputTokens = (usage.input_tokens || 0) +
+                (usage.cache_read_input_tokens || 0) +
+                (usage.cache_creation_input_tokens || 0);
               if (parsed.message.model) modelName = parsed.message.model;
             }
             // message_delta contains output token count

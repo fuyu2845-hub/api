@@ -59,7 +59,18 @@ export default function KeysTab() {
               const isExpired = new Date() > new Date(k.expiresAt);
               return (
                 <tr key={k.id} className="border-b border-gray-100">
-                  <td className="py-2"><code className="text-xs">{k.key.slice(0, 20)}...</code></td>
+                  <td className="py-2">
+                      <div className="flex items-center gap-1">
+                        <code className="text-xs">{k.key.slice(0, 20)}...</code>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(k.key)}
+                          className="text-gray-400 hover:text-gray-600 text-xs"
+                          title="复制完整 Key"
+                        >
+                          📋
+                        </button>
+                      </div>
+                    </td>
                   <td className="py-2 text-xs">{k.cdks.map((c) => c.code).join(', ') || '-'}</td>
                   <td className="py-2 text-right text-xs">
                     ${k.quotaUsed.toFixed(4)} / ${k.quotaTotal}

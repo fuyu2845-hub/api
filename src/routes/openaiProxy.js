@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import prisma from '../lib/prisma.js';
 import config from '../config.js';
 import apiKeyAuth from '../middleware/apiKeyAuth.js';
 import { recordUsage } from '../services/quota.js';
@@ -103,15 +104,21 @@ router.post('/chat/completions', apiKeyAuth, async (req, res) => {
   }
 });
 
-// GET /v1/models - proxy models list
+// GET /v1/models - return only priced models
 router.get('/models', async (_req, res) => {
   try {
-    const upstreamUrl = `${config.cliproxy.baseUrl}/v1/models`;
-    const upstreamRes = await fetch(upstreamUrl, {
-      headers: { Authorization: `Bearer ${config.cliproxy.apiKey}` },
-    });
-    const data = await upstreamRes.json();
-    res.json(data);
+    // Get all pricing rules from database
+    const pricingRules = await prisma.pricingRule.findMany();
+    const pricedModels = pricingRules
+      .filter((rule) => rule.modelPattern !== '*') // Exclude default rule
+      .map((rule) => ({
+        id: rule.modelPattern,
+        object: 'model',
+        created: Math.floor(rule.createdAt.getTime() / 1000),
+        owned_by: 'cdk-gateway',
+      }));
+
+    res.json({ object: 'list', data: pricedModels });
   } catch {
     res.json({ object: 'list', data: [] });
   }
