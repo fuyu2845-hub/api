@@ -80,7 +80,7 @@ export default function StatsTab() {
               <tr><td colSpan="7" className="py-4 text-center text-gray-400">暂无记录</td></tr>
             ) : logs.map((log) => (
               <tr key={log.id} className="border-b border-gray-100">
-                <td className="py-2 text-xs">{new Date(log.createdAt).toLocaleString('zh-CN')}</td>
+                <td className="py-2 text-xs">{new Date(log.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
                 <td className="py-2"><code className="text-xs">{log.apiKey?.key?.slice(0, 16)}...</code></td>
                 <td className="py-2"><code className="text-xs">{log.model}</code></td>
                 <td className="py-2 text-xs">{log.endpoint}</td>

@@ -50,6 +50,7 @@ export const deletePricing = (id) => adminRequest(`/api/admin/pricing/${id}`, { 
 // Admin API keys
 export const getApiKeys = (page = 1) => adminRequest(`/api/admin/apikeys?page=${page}`);
 export const updateApiKey = (id, data) => adminRequest(`/api/admin/apikeys/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteApiKey = (id) => adminRequest(`/api/admin/apikeys/${id}`, { method: 'DELETE' });
 
 // Admin stats
 export const getStats = () => adminRequest('/api/admin/stats');

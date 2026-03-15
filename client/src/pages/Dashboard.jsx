@@ -61,7 +61,7 @@ export default function Dashboard() {
               </div>
               <div className="p-3 bg-gray-50 rounded">
                 <div className="text-xs text-gray-500">到期时间</div>
-                <div className="font-medium text-sm">{new Date(status.expiresAt).toLocaleString('zh-CN')}</div>
+                <div className="font-medium text-sm">{new Date(status.expiresAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</div>
               </div>
               <div className="p-3 bg-gray-50 rounded">
                 <div className="text-xs text-gray-500">总请求次数</div>
@@ -69,7 +69,7 @@ export default function Dashboard() {
               </div>
               <div className="p-3 bg-gray-50 rounded">
                 <div className="text-xs text-gray-500">创建时间</div>
-                <div className="font-medium text-sm">{new Date(status.createdAt).toLocaleString('zh-CN')}</div>
+                <div className="font-medium text-sm">{new Date(status.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</div>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ export default function Dashboard() {
               <tbody>
                 {logs.map((log) => (
                   <tr key={log.id} className="border-b border-gray-100">
-                    <td className="py-2 text-xs">{new Date(log.createdAt).toLocaleString('zh-CN')}</td>
+                    <td className="py-2 text-xs">{new Date(log.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
                     <td className="py-2"><code className="text-xs">{log.model}</code></td>
                     <td className="py-2 text-xs">{log.endpoint}</td>
                     <td className="py-2 text-right">{log.inputTokens.toLocaleString()}</td>

@@ -35,4 +35,19 @@ router.put('/:id', async (req, res) => {
   res.json(key);
 });
 
+// DELETE /api/admin/apikeys/:id - Delete API key
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  // Delete usage logs first (due to foreign key constraint)
+  await prisma.usageLog.deleteMany({ where: { apiKeyId: id } });
+
+  // Delete associated CDKs
+  await prisma.cdk.deleteMany({ where: { apiKeyId: id } });
+
+  // Delete the API key
+  await prisma.apiKey.delete({ where: { id } });
+  res.json({ success: true });
+});
+
 export default router;

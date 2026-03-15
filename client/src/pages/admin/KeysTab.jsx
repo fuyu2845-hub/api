@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getApiKeys, updateApiKey } from '../../api';
+import { getApiKeys, updateApiKey, deleteApiKey } from '../../api';
 
 export default function KeysTab() {
   const [keys, setKeys] = useState([]);
@@ -28,6 +28,16 @@ export default function KeysTab() {
     load();
   };
 
+  const handleDelete = async (id) => {
+    if (!confirm('确定要删除此 API Key 吗？')) return;
+    try {
+      await deleteApiKey(id);
+      load();
+    } catch (err) {
+      alert('删除失败: ' + err.message);
+    }
+  };
+
   const totalPages = Math.ceil(total / 50);
 
   return (
@@ -42,8 +52,8 @@ export default function KeysTab() {
             <tr className="border-b text-left text-gray-500">
               <th className="pb-2">API Key</th>
               <th className="pb-2">CDK</th>
-              <th className="pb-2 text-right">已用/总额</th>
-              <th className="pb-2">到期时间</th>
+              <th className="pb-2 text-right pr-6">已用/总额</th>
+              <th className="pb-2 pl-2">到期时间</th>
               <th className="pb-2">请求数</th>
               <th className="pb-2">状态</th>
               <th className="pb-2 text-right">操作</th>
@@ -72,13 +82,13 @@ export default function KeysTab() {
                       </div>
                     </td>
                   <td className="py-2 text-xs">{k.cdks.map((c) => c.code).join(', ') || '-'}</td>
-                  <td className="py-2 text-right text-xs">
+                  <td className="py-2 text-right text-xs pr-6">
                     ${k.quotaUsed.toFixed(4)} / ${k.quotaTotal}
                     <div className="w-16 bg-gray-200 rounded-full h-1.5 ml-auto mt-1">
                       <div className={`h-1.5 rounded-full ${pct > 90 ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${Math.min(100, pct)}%` }} />
                     </div>
                   </td>
-                  <td className="py-2 text-xs">{new Date(k.expiresAt).toLocaleDateString('zh-CN')}</td>
+                  <td className="py-2 text-xs pl-2">{new Date(k.expiresAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
                   <td className="py-2 text-xs">{k._count.usageLogs}</td>
                   <td className="py-2">
                     <span className={`text-xs px-2 py-0.5 rounded ${isExpired ? 'bg-red-100 text-red-700' : k.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
@@ -86,9 +96,18 @@ export default function KeysTab() {
                     </span>
                   </td>
                   <td className="py-2 text-right">
-                    <button onClick={() => toggleStatus(k.id, k.status)} className={`text-xs ${k.status === 'active' ? 'text-red-600' : 'text-green-600'}`}>
-                      {k.status === 'active' ? '禁用' : '启用'}
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      {!isExpired && (
+                        <button onClick={() => toggleStatus(k.id, k.status)} className={`text-xs ${k.status === 'active' ? 'text-red-600' : 'text-green-600'}`}>
+                          {k.status === 'active' ? '禁用' : '启用'}
+                        </button>
+                      )}
+                      {isExpired && (
+                        <button onClick={() => handleDelete(k.id)} className="text-xs text-red-600">
+                          删除
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

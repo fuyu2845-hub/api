@@ -68,7 +68,7 @@ export default function Home() {
               </div>
               <div>
                 <span className="text-gray-500">到期时间: </span>
-                <span>{new Date(result.expiresAt).toLocaleString('zh-CN')}</span>
+                <span>{new Date(result.expiresAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</span>
               </div>
             </div>
             <p className="mt-3 text-xs text-gray-500">

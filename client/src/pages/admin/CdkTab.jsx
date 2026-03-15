@@ -195,7 +195,7 @@ export default function CdkTab() {
                   </span>
                 </td>
                 <td className="py-2 text-xs text-gray-500">{c.note || '-'}</td>
-                <td className="py-2 text-xs text-gray-500">{new Date(c.createdAt).toLocaleString('zh-CN')}</td>
+                <td className="py-2 text-xs text-gray-500">{new Date(c.createdAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</td>
               </tr>
             ))}
           </tbody>
